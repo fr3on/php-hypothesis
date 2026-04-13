@@ -14,7 +14,7 @@ use Fr3on\Hypothesis\Shape\ListShape;
 class SortingTest extends PropertyTestCase
 {
     #[Given(new ListShape(new IntegerShape()))]
-    public function test_sorted_list_has_same_length(array $xs): void
+    public function prop_sorted_list_has_same_length(array $xs): void
     {
         $sorted = $xs;
         sort($sorted);
@@ -25,7 +25,7 @@ class SortingTest extends PropertyTestCase
         new IntegerShape(1, 1000),
         new IntegerShape(1, 1000)
     )]
-    public function test_addition_is_commutative(int $a, int $b): void
+    public function prop_addition_is_commutative(int $a, int $b): void
     {
         $this->assertSame($a + $b, $b + $a);
     }

@@ -8,29 +8,19 @@ use Attribute;
 use Fr3on\Hypothesis\Shape\ShapeInterface;
 
 /**
- * Marks a test method as a property test and defines its input shapes.
+ * Attribute to define data generators for test parameters.
  */
 #[Attribute(Attribute::TARGET_METHOD)]
 final readonly class Given
 {
-    /** @var array<ShapeInterface<mixed>> */
+    /** @var array<int, ShapeInterface<mixed>> */
     public array $shapes;
 
+    /**
+     * @param ShapeInterface<mixed> ...$shapes
+     */
     public function __construct(ShapeInterface ...$shapes)
     {
-        $this->shapes = $shapes;
+        $this->shapes = array_values($shapes);
     }
-}
-
-/**
- * Configure settings for a property test.
- */
-#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_CLASS)]
-final readonly class Settings
-{
-    public function __construct(
-        public int $maxExamples = 100,
-        public int $deadline = 200, // ms
-        public array $suppressHealthCheck = []
-    ) {}
 }

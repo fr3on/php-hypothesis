@@ -26,12 +26,7 @@ class Runner
     }
 
     /**
-     * Runs a property test.
-     * 
-     * @param string $testId A unique identifier for the test property (for DB persistence)
-     * @param array<ShapeInterface<mixed>> $shapes
-     * @param callable $test
-     * @throws \Throwable If a failing example is found and shrunk
+     * @param array<int, ShapeInterface<mixed>> $shapes
      */
     public function run(string $testId, array $shapes, callable $test): void
     {
@@ -52,6 +47,9 @@ class Runner
         }
     }
 
+    /**
+     * @param array<int, ShapeInterface<mixed>> $shapes
+     */
     private function tryReplay(string $testId, array $shapes, callable $test): void
     {
         $example = $this->database->load($testId);
@@ -67,6 +65,10 @@ class Runner
         }
     }
 
+    /**
+     * @param array<int, ShapeInterface<mixed>> $shapes
+     * @param array<int, mixed> $failingInputs
+     */
     private function shrinkAndReport(string $testId, array $shapes, array $failingInputs, callable $test, \Throwable $originalError): void
     {
         $currentFailing = $failingInputs;
@@ -74,12 +76,11 @@ class Runner
         for ($i = 0; $i < count($shapes); $i++) {
             $shrinker = $shapes[$i]->getShrinker();
             
-            /** @var mixed $shrunkValue */
             $currentFailing[$i] = $shrinker->shrink(
                 $currentFailing[$i],
-                function ($shrunkValue) use ($currentFailing, $i, $test) {
+                function (mixed $sv) use ($currentFailing, $i, $test) {
                     $candidate = $currentFailing;
-                    $candidate[$i] = $shrunkValue;
+                    $candidate[$i] = $sv;
                     try {
                         $test(...$candidate);
                         return false; 

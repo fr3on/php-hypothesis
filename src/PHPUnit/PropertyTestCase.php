@@ -14,11 +14,12 @@ abstract class PropertyTestCase extends TestCase
     use HypothesisTrait;
 
     /**
-     * Overriding runTest to handle property test execution.
+     * Gateway test that runs all property methods discovered by the provider.
      */
-    protected function runTest(): mixed
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('hypothesisMethodProvider')]
+    public function run_hypothesis_property(string $method): void
     {
-        $this->runPropertyTest();
-        return null;
+        $this->runPropertyMethod($method);
     }
 }

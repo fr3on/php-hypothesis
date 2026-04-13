@@ -15,13 +15,11 @@ use ReflectionMethod;
 trait HypothesisTrait
 {
     /**
-     * This is an internal method that should be called by the PHPUnit Extension or manually.
-     * It scans for #[Given] attribute and runs the property test.
+     * Executes the hypothesis engine for a specific method.
      */
-    protected function runPropertyTest(): void
+    protected function runPropertyMethod(string $method): void
     {
-        $method = $this->name();
-        $reflection = new \ReflectionMethod($this, $method);
+        $reflection = new ReflectionMethod($this, $method);
         
         $given = ($reflection->getAttributes(Given::class)[0] ?? null)?->newInstance();
         if (!$given instanceof Given) {
@@ -33,14 +31,32 @@ trait HypothesisTrait
 
         $runner = new Runner(maxExamples: $settings->maxExamples);
         
-        // Define the test closure. 
-        // We use $this to allow access to PHPUnit assertions.
-        $testClosure = function (mixed ...$args) use ($reflection) {
-            $reflection->invoke($this, ...$args);
+        $obj = $this;
+        $testClosure = function (mixed ...$args) use ($reflection, $obj) {
+            $reflection->invoke($obj, ...$args);
         };
 
         $testId = get_class($this) . '::' . $method;
 
         $runner->run($testId, $given->shapes, $testClosure);
+    }
+
+    /**
+     * Finds all methods in the current class that have the #[Given] attribute.
+     * 
+     * @return array<string, array{string}>
+     */
+    public static function hypothesisMethodProvider(): array
+    {
+        $methods = [];
+        $reflection = new \ReflectionClass(static::class);
+
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if (!empty($method->getAttributes(Given::class))) {
+                $methods[$method->getName()] = [$method->getName()];
+            }
+        }
+
+        return $methods;
     }
 }

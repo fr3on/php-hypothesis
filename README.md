@@ -1,5 +1,8 @@
 # php-hypothesis
 
+[![CI](https://github.com/fr3on/php-hypothesis/actions/workflows/ci.yml/badge.svg)](https://github.com/fr3on/php-hypothesis/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/fr3on/php-hypothesis)](https://github.com/fr3on/php-hypothesis/blob/main/LICENSE)
+
 Property-based testing for PHP 8.4+, inspired by the Python `Hypothesis` library.
 
 ## Features
@@ -21,12 +24,13 @@ composer require fr3on/php-hypothesis
 ```php
 use Fr3on\Hypothesis\PHPUnit\PropertyTestCase;
 use Fr3on\Hypothesis\Attribute\Given;
+use Fr3on\Hypothesis\Shape\ListShape;
 use Fr3on\Hypothesis\Shape\IntegerShape;
 
 class SortingTest extends PropertyTestCase
 {
-    #[Given(['list' => new ListShape(new IntegerShape())])]
-    public function test_sort_is_idempotent(array $list): void
+    #[Given(new ListShape(new IntegerShape()))]
+    public function prop_sort_is_idempotent(array $list): void
     {
         $sorted = $list;
         sort($sorted);
